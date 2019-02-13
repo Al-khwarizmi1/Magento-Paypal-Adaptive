@@ -1,0 +1,156 @@
+<?php
+/**
+ * Apptha Paypal Adaptive Options in product edit tab
+ *
+ * @package         Apptha PayPal Adaptive
+ * @version         0.1.1
+ * @since           Magento 1.5
+ * @author          Apptha Team
+ * @copyright       Copyright (C) 2014 Powered by Apptha
+ * @license         http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @Creation Date   January 17,2014
+ * @Modified By     Ramkumar M
+ * @Modified Date   January 23,2014
+ *
+ * */
+?>
+
+<?php
+/*
+ * Initilizing product data
+ */
+$productId = $this->getRequest()->getParam('id');
+$productData = Mage::getModel('paypaladaptive/productdetails')->getCollection()
+        ->addFieldToFilter('product_id', $productId);
+$firstRow = $productData->getFirstItem();
+?>
+<!-- Paypal Adaptive Options  -->
+<div class="entry-edit">
+    <div class="entry-edit-head">
+        <h4 class="icon-head head-edit-form fieldset-legend"><?php echo $this->__('Apptha Paypal Adaptive Options'); ?></h4>
+    </div>
+    <div id="group_fields4" class="fieldset fieldset-wide">
+        <div class="hor-scroll">
+            <table cellspacing="0" class="form-list">
+                <tbody>
+                    <!-- Enable Paypal Details Options  -->
+                    <tr>
+                        <td class="label"><label for="paypal_adaptive_activate"><?php echo $this->__('Share sales with Partner'); ?> <span class="required">*</span></label></td>
+
+                        <td  class="value">                            
+                            <select id="paypal_adaptive_activate" name="paypal_adaptive_activate" class=" required-entry required-entry select" onchange="paypalAdaptiveOptionsChange(this.value)">
+                                <option value="1" <?php
+                                if (!empty($firstRow['product_id'])) {
+                                    if ($firstRow->getIsEnable() == 1) {
+                                        echo 'selected="selected"';
+                                    }
+                                }
+                                ?> ><?php echo $this->__('Enabled'); ?></option>
+                                <option value="2" <?php
+                                if (!empty($firstRow['product_id'])) {
+                                    if ($firstRow->getIsEnable() != 1) {
+                                        echo 'selected="selected"';
+                                    }
+                                } else {
+                                    echo 'selected="selected"';
+                                }
+                                ?>><?php echo $this->__('Disabled'); ?></option>
+                            </select>
+                            <div><span><?php echo $this->__('If disabled, config settings will be used.'); ?></span></div>                            
+                        </td>
+
+                        <td class="scope-label"><span class="nobr">[<?php echo $this->__('GLOBAL'); ?>]</span></td>
+                    </tr>
+
+                    <!-- Partner's Paypal Mail Address Options  -->                
+                    <tr>
+                        <td class="label"><label for="product_paypal_id"> <?php echo $this->__("Partner's Paypal Mail Address"); ?> <span class="required">*</span></label></td>
+                        <td class="value">
+                            <input id="product_paypal_id" name="product_paypal_id" class="string input-block-level input-text validate-email required-entry" type="text" <?php
+                            if (!empty($firstRow['product_id'])) {
+                                echo 'value ="' . $firstRow->getProductPaypalId() . '" ';
+                            }
+                            ?>  <?php
+                            if (!empty($firstRow['product_id'])) {
+                                if ($firstRow->getIsEnable() != 1) {
+                                    echo 'disabled="disabled"';
+                                }
+                            } else {
+                                echo 'disabled="disabled"';
+                            }
+                            ?>>    </td>
+                        <td class="scope-label"><span class="nobr">[<?php echo $this->__('GLOBAL'); ?>]</span></td>
+                    </tr>
+                    <!-- Share Mode Options  -->   
+                    <tr>
+                        <td class="label"><label for="share_mode"> <?php echo $this->__('Admin Share Mode'); ?> <span class="required">*</span></label></td>
+                        <td class="value">
+                            <select id="share_mode" name="share_mode" class=" required-entry required-entry select" <?php
+                            if (!empty($firstRow['product_id'])) {
+                                if ($firstRow->getIsEnable() != 1) {
+                                    echo 'disabled="disabled"';
+                                }
+                            } else {
+                                echo 'disabled="disabled"';
+                            }
+                            ?>>
+                                <option value="percent" <?php
+                                if (!empty($firstRow['product_id'])) {
+                                    if ($firstRow->getShareMode() == 'percent') {
+                                        echo 'selected="selected"';
+                                    }
+                                } else {
+                                    echo 'selected="selected"';
+                                }
+                            ?> ><?php echo $this->__('Percent'); ?></option>
+
+                                <option value="fixed" <?php
+                                        if (!empty($firstRow['product_id'])) {
+                                            if ($firstRow->getShareMode() == 'fixed') {
+                                                echo 'selected="selected"';
+                                            }
+                                        }
+                            ?> ><?php echo $this->__('Fixed'); ?></option>
+
+                            </select>
+                        <td class="scope-label"><span class="nobr">[<?php echo $this->__('GLOBAL'); ?>]</span></td>
+                    </tr>
+                    <!-- Share Percentage Options  --> 
+                    <tr>
+                        <td class="label"><label for="share_value"> <?php echo $this->__('Admin Share Value'); ?> <span class="required">*</span></label></td>
+                        <td class="value">
+                            <input id="share_value" name="share_value" class=" required-entry  validate-number  input-text" type="text" <?php
+                            if (!empty($firstRow['product_id'])) {
+                                echo 'value ="' . $firstRow->getShareValue() . '" ';
+                            }
+                            ?> <?php
+                            if (!empty($firstRow['product_id'])) {
+                                if ($firstRow->getIsEnable() != 1) {
+                                    echo 'disabled="disabled"';
+                                }
+                            } else {
+                                echo 'disabled="disabled"';
+                            }
+                            ?>>    </td>
+                        <td class="scope-label"><span class="nobr">[<?php echo $this->__('GLOBAL'); ?>]</span></td>
+                    </tr>          
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+// Changing paypal adaptive options value    
+function paypalAdaptiveOptionsChange(value) {
+if (value != 1) {
+$('product_paypal_id').setAttribute('disabled', 'disabled');
+$('share_mode').setAttribute('disabled', 'disabled');
+$('share_value').setAttribute('disabled', 'disabled');
+} else {
+$('product_paypal_id').removeAttribute('disabled');
+$('share_mode').removeAttribute('disabled');
+$('share_value').removeAttribute('disabled');
+}
+}
+</script>    
